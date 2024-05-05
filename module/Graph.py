@@ -72,3 +72,56 @@ class Graph():
     def __iter__(self):
         # 迭代器
         return iter(self.vertList.values())
+
+
+# 实现广度优先搜索
+def bfs(gragh, start):
+    start.setDistance(0)  # 起始点的距离为0
+    start.setPred(None)  # 起始点的前驱为None
+    vertQueue = Queve()  # 创建一个队列
+    vertQueue.enqueue(start)  # 起始点入队
+    while vertQueue.size() > 0:
+        currentVert = vertQueue.dequeue()  # 出队
+        for nbr in currentVert.getConnections():
+            # 遍历当前顶点的所有邻接顶点
+            nbr.setColor('gray')  # 邻接顶点变为灰色,表示已经访问过
+            nbr.setDistance(currentVert.getDistance() + 1)  # 邻接顶点的距离为当前顶点的距离加1
+            nbr.setPred(currentVert)  # 邻接顶点的前驱为当前顶点
+            vertQueue.enqueue(nbr)  # 邻接顶点入队
+        currentVert.setColor('black')  # 当前顶点变为黑色，表示已经探索过
+
+
+# 回溯，找到从起始点到终点的路径
+def traverse(y):
+    x = y
+    while x.getPred():
+        print(x.getId())
+        x = x.getPred()
+    print(x.getId())
+
+
+# 优化广义优先搜索算法，不必遍历所有的顶点，只需要遍历到终点即可
+# 返回路径
+def bfsAdjust(gragh, start, end):
+    # start是起始点，end是终点
+    start.setDistance(0)  # 起始点的距离为0
+    start.setPred(None)  # 起始点的前驱为None
+    vertQueue = Queve()  # 创建一个队列
+    # 起始点入队
+    vertQueue.enqueue(start)
+    while vertQueue.size() > 0:
+        currentVert = vertQueue.dequeue()  # 出队
+        if currentVert == end:
+            # 如果当前顶点是终点，返回路径
+            traverse(currentVert)
+            return
+        for nbr in currentVert.getConnections():
+            # 遍历当前顶点的所有邻接顶点
+            if nbr.getColor() == 'white':
+                # 如果邻接顶点未访问过
+                nbr.setColor('gray')  # 邻接顶点变为灰色,表示已经访问过
+                nbr.setDistance(currentVert.getDistance() + 1)
+                nbr.setPred(currentVert)
+                vertQueue.enqueue(nbr)
+        currentVert.setColor('black')
+    return None
