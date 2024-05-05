@@ -1,5 +1,10 @@
 # 实现图算法
 # 使用两个类，Graph类存储包含所有带点的主列表，Vertex类存储每个顶点的信息
+# 将module文件夹添加到sys.path中，以便导入module模块
+import sys
+sys.path.append('.')
+from module.Queue import Queue
+from module.Stack import Stack
 
 # 实现Vertex类
 class Vertex():
@@ -8,6 +13,15 @@ class Vertex():
         self.id = key
         # 顶点的连接,以字典的形式存储，key是顶点对象，value是权重
         self.connectedTo = {}
+        
+        # 针对广度优先搜索的辅助变量
+        self.color = 'white'  # 顶点的颜色，白色表示未访问，灰色表示访问过但未探索，黑色表示访问过且探索过
+        self.dist = 0  # 顶点的距离
+        self.pred = None  # 顶点的前驱
+        
+        # 针对深度优先搜索的辅助变量
+        self.disc = 0
+        self.fin = 0
     
     def addNeighbor(self, nbr, weight=0):
         # 添加邻接顶点
@@ -28,6 +42,42 @@ class Vertex():
     def getWeight(self, nbr):
         # 返回顶点的权重
         return self.connectedTo[nbr]
+    
+    # 针对广度优先搜索的辅助函数
+    # 针对广度优先搜索的辅助函数
+    # 针对广度优先搜索的辅助函数
+    def setColor(self, color):
+        self.color = color
+        
+    def getColor(self):
+        return self.color
+    
+    def setDistance(self, d):
+        self.dist = d
+        
+    def getDistance(self):
+        return self.dist
+    
+    def setPred(self, p):
+        self.pred = p
+        
+    def getPred(self):
+        return self.pred
+    
+    # 针对深度优先搜索的辅助函数
+    # 针对深度优先搜索的辅助函数
+    # 针对深度优先搜索的辅助函数
+    def setDiscovery(self, dtime):
+        self.disc = dtime
+        
+    def getDiscovery(self):
+        return self.disc
+    
+    def setFinish(self, ftime):
+        self.fin = ftime
+        
+    def getFinish(self):
+        return self.fin
 
 
 # 实现Graph类
@@ -71,6 +121,8 @@ class Graph():
     
     def __iter__(self):
         # 迭代器
+        # 返回所有顶点
+        # 形式为每一个顶点相连的所以顶点
         return iter(self.vertList.values())
 
 
@@ -125,3 +177,54 @@ def bfsAdjust(gragh, start, end):
                 vertQueue.enqueue(nbr)
         currentVert.setColor('black')
     return None
+
+# 实现深度有限搜索
+class DFSGraph(Graph):
+    def __init__(self):
+        super().__init__()
+        self.time = 0
+    
+    def dfs(self):
+        # 深度优先搜索
+        for aVertex in self:
+            # 初始化所有顶点
+            aVertex.setColor('white')
+            aVertex.setPred(-1)
+        for aVertex in self:
+            if aVertex.getColor() == 'white':
+                # 如果顶点未访问过
+                self.dfsvisit(aVertex)
+        
+    def dfsvisit(self, startVertex):
+        # 深度优先搜索的辅助函数
+        startVertex.setColor('gray')  # 顶点变为灰色，表示已经访问过
+        self.time += 1  # 时间加1
+        startVertex.setDiscovery(self.time)  # 设置发现时间
+        for nextVertex in startVertex.getConnections():
+            # 遍历所有邻接顶点
+            if nextVertex.getColor() == 'white':
+                # 如果邻接顶点未访问过
+                nextVertex.setPred(startVertex)  # 设置邻接顶点的前驱
+                self.dfsvisit(nextVertex)  # 递归调用
+        startVertex.setColor('black')  # 顶点变为黑色，表示已经探索过
+        self.time += 1  # 时间加1
+        startVertex.setFinish(self.time)  # 设置完成时间
+    
+    def dfsAdjust(self, start, end):
+        # 深度优先搜索，找到从起始点到终点的路径
+        start.setColor('white')
+        start.setPred(None)
+        stack = Stack()
+        stack.push(start)
+        while not stack.isEmpty():
+            currentVertex = stack.pop()
+            if currentVertex == end:
+                traverse(currentVertex)
+                return
+            for nbr in currentVertex.getConnections():
+                if nbr.getColor() == 'white':
+                    nbr.setColor('gray')
+                    nbr.setPred(currentVertex)
+                    stack.push(nbr)
+            currentVertex.setColor('black')
+        return None
