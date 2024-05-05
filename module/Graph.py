@@ -130,7 +130,7 @@ class Graph():
 def bfs(gragh, start):
     start.setDistance(0)  # 起始点的距离为0
     start.setPred(None)  # 起始点的前驱为None
-    vertQueue = Queve()  # 创建一个队列
+    vertQueue = Queue()  # 创建一个队列
     vertQueue.enqueue(start)  # 起始点入队
     while vertQueue.size() > 0:
         currentVert = vertQueue.dequeue()  # 出队
@@ -158,7 +158,7 @@ def bfsAdjust(gragh, start, end):
     # start是起始点，end是终点
     start.setDistance(0)  # 起始点的距离为0
     start.setPred(None)  # 起始点的前驱为None
-    vertQueue = Queve()  # 创建一个队列
+    vertQueue = Queue()  # 创建一个队列
     # 起始点入队
     vertQueue.enqueue(start)
     while vertQueue.size() > 0:
