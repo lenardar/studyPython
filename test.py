@@ -45,4 +45,4 @@ def optimize_txt_format(filename):
 
 
 # 请确保路径正确，并且您有权限写入该文件
-optimize_txt_format(r'C:/Users/86151/Desktop/')
+optimize_txt_format(r'C:/Users/86151/Desktop/床道授业.txt')
