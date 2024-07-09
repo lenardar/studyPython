@@ -1,0 +1,1 @@
+omega = np.zeros((n, 1))
