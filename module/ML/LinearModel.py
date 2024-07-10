@@ -1,6 +1,7 @@
 # 使用梯度下降法获得线性回归模型
 import numpy as np
 import random
+import math
 
 # 批量梯度下降GBD
 
@@ -104,6 +105,104 @@ def MBGD_Nesterov(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, 
     return omega
 
 
+# AdaGrad
+def AdaGrad(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1,e=1e-5):
+    # s为分母初始值
+    # e防止分母为0，默认设置一个小正数
+    m = X.shape[0]
+    n = X.shape[1]
+    omega = np.zeros((n, 1))
+    y = y.reshape(-1, 1)  # 将y转换为列向量
+    list_g = np.zeros(num_iters)  # 存储历史梯度平方值
+    s = 0  # 分母初始值
+
+    for i in range(num_iters):
+        list_batch = random.sample(range(m), batch_size)
+        X_batch = X[list_batch]
+        y_batch = y[list_batch]
+
+        h = X_batch @ omega
+        g = 2*np.dot(X_batch.T, (h-y_batch))  # 计算梯度
+        s = s + np.linalg.norm(g)**2
+        if np.linalg.norm(g) < epsilon:   # 当梯度小于阈值时停止迭代
+            break
+        alpha_adj = alpha / np.sqrt(s+e)
+        minus = alpha_adj * g
+        if np.linalg.norm(minus) < epsilon:  # 当函数值稳定时停止迭代
+            omega = omega - minus
+            break
+        omega = omega - minus
+
+    return omega
+
+
+# RMSProp
+def RMSProp(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, e=1e-5, rho=0.1):
+    # s为分母初始值
+    # e防止分母为0，默认设置一个小正数
+    m = X.shape[0]
+    n = X.shape[1]
+    omega = np.zeros((n, 1))
+    y = y.reshape(-1, 1)  # 将y转换为列向量
+    list_g = np.zeros(num_iters)  # 存储历史梯度平方值
+    s = 0  # 分母初始值
+
+    for i in range(num_iters):
+        list_batch = random.sample(range(m), batch_size)
+        X_batch = X[list_batch]
+        y_batch = y[list_batch]
+
+        h = X_batch @ omega
+        g = 2*np.dot(X_batch.T, (h-y_batch))  # 计算梯度
+        s = rho*s + (1-rho)*np.linalg.norm(g)**2
+        if np.linalg.norm(g) < epsilon:   # 当梯度小于阈值时停止迭代
+            break
+        alpha_adj = alpha / np.sqrt(s+e)
+        minus = alpha_adj * g
+        if np.linalg.norm(minus) < epsilon:  # 当函数值稳定时停止迭代
+            omega = omega - minus
+            break
+        omega = omega - minus
+
+    return omega
+
+
+# Adam
+def Adam(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, e=1e-5, rho_1=0.1, rho_2=0.1):
+    # alpha为学习率
+    # s为RMSProp分母初始值，e防止RMSProp分母为0
+    # rho_1为动量参数
+    # rho_2为RMSProp参数
+    m = X.shape[0]
+    n = X.shape[1]
+    omega = np.zeros((n, 1))
+    y = y.reshape(-1, 1)  # 将y转换为列向量
+    v = np.zeros((n, 1))  # 定义初速度
+    s = 0  # 分母初始值
+
+    for i in range(num_iters):
+        list_batch = random.sample(range(m), batch_size)
+        X_batch = X[list_batch]
+        y_batch = y[list_batch]
+
+        h = X_batch @ omega
+        g = 2*np.dot(X_batch.T, (h-y_batch))  # 计算梯度
+        v = rho_1*v+(1-rho_1)*g
+        s = rho_2*s + (1-rho_2)*np.linalg.norm(g)**2
+        if np.linalg.norm(g) < epsilon:   # 当梯度小于阈值时停止迭代
+            break
+        V = v/(1-rho_1**(i+1))
+        S = s/(1-rho_2**(i+1))
+        minus = alpha*V/(np.sqrt(S)+e)
+        if np.linalg.norm(minus) < epsilon:  # 当函数值稳定时停止迭代
+            omega = omega - minus
+            break
+        omega = omega - minus
+
+    return omega
+
+
+
 # 牛顿法
 def Newton(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5):
     m, n = X.shape
@@ -140,6 +239,6 @@ if __name__ == '__main__':
     print('y为：')
     print(y)
 
-    omega = MBGD_Nesterov(X, y)
+    omega = Adam(X, y)
     print('omega为：')
     print(omega)
