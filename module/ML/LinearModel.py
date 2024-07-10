@@ -51,7 +51,7 @@ def MBGD(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1):
 
 
 # MBGD动量法
-def MBGD_momentum(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, beta=0.9):
+def MBGD_Momentum(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, beta=0.9):
     m = X.shape[0]
     n = X.shape[1]
     omega = np.ones((n, 1))
@@ -64,6 +64,34 @@ def MBGD_momentum(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, 
         y_batch = y[list_batch]
 
         h = X_batch @ omega
+        g = 2*np.dot(X_batch.T, (h-y_batch))  # 计算梯度
+        if np.linalg.norm(g) < epsilon:   # 当梯度小于阈值时停止迭代
+            break
+        v = beta * v + alpha * g
+        if np.linalg.norm(v) < epsilon:  # 当函数值稳定时停止迭代
+            omega = omega - v
+            break
+        omega = omega - v
+
+    return omega
+
+
+# MGBD牛顿动量法
+def MBGD_Nesterov(X, y, alpha=0.01, num_iters=1000, epsilon=1e-5, batch_size=1, beta=0.9):
+    m = X.shape[0]
+    n = X.shape[1]
+    omega = np.ones((n, 1))
+    y = y.reshape(-1, 1)  # 将y转换为列向量
+    v = np.zeros((n, 1))  # 初始化动量
+
+    for i in range(num_iters):
+        list_batch = random.sample(range(m), batch_size)
+        X_batch = X[list_batch]
+        y_batch = y[list_batch]
+        
+        omega_ahead = omega+beta*v
+
+        h = X_batch @ omega_ahead
         g = 2*np.dot(X_batch.T, (h-y_batch))  # 计算梯度
         if np.linalg.norm(g) < epsilon:   # 当梯度小于阈值时停止迭代
             break
@@ -112,6 +140,6 @@ if __name__ == '__main__':
     print('y为：')
     print(y)
 
-    omega = MBGD_momentum(X, y)
+    omega = MBGD_Nesterov(X, y)
     print('omega为：')
     print(omega)
